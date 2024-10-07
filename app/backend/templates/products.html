@@ -1,0 +1,22 @@
+<form method="GET" action="{{ url_for('main.search') }}">
+    <input type="text" name="q" placeholder="Search products">
+    <button type="submit">Search</button>
+</form>
+
+
+<h2>Product Catalog</h2>
+<ul>
+    {% for product in products %}
+        <li>
+            {{ product.name }} - ${{ product.price }} - {{ product.stock }} in stock
+            <form method="POST" action="{{ url_for('main.place_order') }}">
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <label for="quantity">Quantity:</label>
+                <input type="number" name="quantity" min="1" max="{{ product.stock }}">
+                <button type="submit">Order</button>
+            </form>
+        </li>
+    {% endfor %}
+</ul>
+
+<a href="{{ url_for('main.new_product_form') }}">Add New Product</a>

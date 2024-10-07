@@ -1,0 +1,5 @@
+app/__pycache__
+app/backend/__pycache__
+app/instance/ecommerce.db
+.venv
+.env
