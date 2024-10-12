@@ -45,6 +45,8 @@ resource "aws_db_instance" "ecommerce_db" {
   vpc_security_group_ids = [aws_security_group.db.id]
   skip_final_snapshot  = true
 
+  db_name  = "ecommercedb"
+
   tags = {
     Name = "ecommerce-db"
   }

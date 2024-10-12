@@ -28,13 +28,13 @@ resource "aws_elasticsearch_domain" "ecommerce_search" {
     enabled                        = true
     internal_user_database_enabled  = true
     master_user_options {
-      master_user_name     = "admin"  # Set master user for security
-      master_user_password = "StrongPassword123!"  # Ensure you use a strong password
+      master_user_name     = "admin"  
+      master_user_password = "StrongPassword123!"
     }
   }
 
   domain_endpoint_options {
-    enforce_https = true  # Ensure HTTPS is enforced
+    enforce_https = true 
   }
 
   access_policies = <<POLICIES
@@ -44,7 +44,7 @@ resource "aws_elasticsearch_domain" "ecommerce_search" {
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "*"
+        "AWS": "arn:aws:iam::049088564626:user/Qntr-main"
       },
       "Action": "es:*",
       "Resource": "arn:aws:es:us-east-1:049088564626:domain/ecommerce-search/*"
@@ -52,15 +52,10 @@ resource "aws_elasticsearch_domain" "ecommerce_search" {
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "*"
+        "AWS": "arn:aws:iam::049088564626:user/admin"
       },
       "Action": "es:*",
-      "Resource": "arn:aws:es:us-east-1:049088564626:domain/ecommerce-search/*",
-      "Condition": {
-        "StringEquals": {
-          "es:username": "admin"
-        }
-      }
+      "Resource": "arn:aws:es:us-east-1:049088564626:domain/ecommerce-search/*"
     }
   ]
 }

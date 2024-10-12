@@ -2,11 +2,11 @@ from flask import Blueprint, render_template, redirect, request, url_for, flash,
 from flask_login import current_user, login_user, logout_user, login_required
 from .models import Order, Product, User, db
 from .forms import RegistrationForm, LoginForm
-from werkzeug.security import generate_password_hash, check_password_hash  # Ensure this line is included
+from werkzeug.security import generate_password_hash, check_password_hash
 import boto3
 import json
 from flask import current_app
-from elasticsearch import Elasticsearch
+from .elastic_search import add_product_to_index, update_product_in_index, remove_product_from_index, create_products_index, get_opensearch_client
 
 main_bp = Blueprint('main', __name__)
 
@@ -45,8 +45,6 @@ def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
-
-
 @main_bp.route('/products')
 def list_products():
     products = Product.query.all()
@@ -65,7 +63,7 @@ def add_product():
     db.session.add(product)
     db.session.commit()
 
-    # Index the product in Elasticsearch
+    # Index the product in OpenSearch
     add_product_to_index('products', product)
 
     flash('Product added successfully!')
@@ -75,8 +73,6 @@ def add_product():
 @login_required
 def new_product_form():
     return render_template('add_product.html')
-
-
 
 def send_order_to_kinesis(order_data):
     kinesis_client = boto3.client(
@@ -94,7 +90,6 @@ def send_order_to_kinesis(order_data):
     # Add logging to confirm the record was sent
     print(f"Order sent to Kinesis: {order_data}")
     print(f"Kinesis response: {response}")
-
 
 @main_bp.route('/order', methods=['POST'])
 @login_required
@@ -131,14 +126,12 @@ def place_order():
     flash('Order placed successfully!')
     return redirect(url_for('main.list_products'))
 
-
 @main_bp.route('/orders')
 @login_required
 def view_orders():
     # Fetch orders placed by the current logged-in user
     orders = Order.query.filter_by(user_id=current_user.id).all()
     return render_template('orders.html', orders=orders)
-
 
 @main_bp.route('/order/update_status/<int:order_id>', methods=['POST'])
 @login_required
@@ -150,67 +143,12 @@ def update_order_status(order_id):
         flash('Order status updated!')
     return redirect(url_for('main.view_orders'))
 
-
-# In elastic_search.py
-def add_product_to_index(index, product):
-    # Add the product to Elasticsearch index
-    # Ensure that you convert the product object to a suitable format (like a dictionary) if needed
-    es = Elasticsearch(current_app.config['ELASTICSEARCH_URL'])
-    
-    doc = {
-        'name': product.name,
-        'description': product.description,
-        'price': product.price,
-        'stock': product.stock
-    }
-    es.index(index=index, body=doc, id=product.id)
-
-
-def update_product_in_index(product):
-    es = Elasticsearch(current_app.config['ELASTICSEARCH_URL'])
-
-    # Define the updated document
-    doc = {
-        'name': product.name,
-        'description': product.description,
-        'price': product.price,
-        'stock': product.stock
-    }
-
-    # Update the product in the index
-    es.update(index='products', id=product.id, body={"doc": doc})
-
-def remove_product_from_index(product_id):
-    es = Elasticsearch(current_app.config['ELASTICSEARCH_URL'])
-    
-    # Delete the product from the index
-    es.delete(index='products', id=product_id)
-
-# @main_bp.route('/products/new', methods=['POST'])
-# @login_required
-# def add_product():
-#     product = Product(
-#         name=request.form['name'],
-#         description=request.form['description'],
-#         price=float(request.form['price']),
-#         stock=int(request.form['stock'])
-#     )
-
-#     db.session.add(product)
-#     db.session.commit()
-
-#     # Index the product in Elasticsearch
-#     add_product_to_index(product)
-
-#     flash('Product added successfully!')
-#     return redirect(url_for('main.list_products'))
-
 @main_bp.route('/search', methods=['GET'])
 def search():
     query = request.args.get('q', '')
-    es = Elasticsearch(current_app.config['ELASTICSEARCH_URL'])
+    es = get_opensearch_client()
 
-    # Perform a search query in Elasticsearch
+    # Perform a search query in OpenSearch
     body = {
         "query": {
             "multi_match": {
@@ -232,23 +170,3 @@ def search():
     } for hit in results]
 
     return render_template('search_results.html', products=products, query=query)
-
-
-def create_products_index():
-    es = Elasticsearch(current_app.config['ELASTICSEARCH_URL'])
-    
-    # Check if the index already exists
-    if not es.indices.exists(index="products"):
-        # Define the index settings and mappings
-        body = {
-            "mappings": {
-                "properties": {
-                    "name": {"type": "text"},
-                    "description": {"type": "text"},
-                    "price": {"type": "float"},
-                    "stock": {"type": "integer"}
-                }
-            }
-        }
-        # Create the index
-        es.indices.create(index="products", body=body)
