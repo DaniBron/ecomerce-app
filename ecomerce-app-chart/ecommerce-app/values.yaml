@@ -1,0 +1,49 @@
+# Application Image settings
+image:
+  repository: rfrcapital/ecomerce-app  
+  tag: 1.0.3                       
+  pullPolicy: IfNotPresent           
+
+# Replica settings for Flask app deployment
+replicaCount: 2                      
+
+# Flask app container port (flask runs on port 5000 by default)
+service:
+  type: LoadBalancer
+  port: 80
+
+# Flask container resources (for Horizontal and Vertical Pod Autoscaling)
+resources:
+  limits:
+    cpu: 500m   
+    memory: 512Mi 
+  requests:
+    cpu: 250m   
+    memory: 256Mi 
+
+# Autoscaling settings
+autoscaling:
+  enabled: true           
+  minReplicas: 2          
+  maxReplicas: 5          
+  targetCPUUtilizationPercentage: 70  
+
+# Persistent storage settings for EBS volumes
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 1Gi                 
+
+# EKS-specific configuration
+eks:
+  region: us-east-1        
+  clusterName: ecommerce-cluster  
+
+ingress:
+  enabled: false  # Set to true if you are using ingress
+  annotations: {}
+  hosts:
+    - host: ecommerce-app.local
+      paths:
+        - /
+  tls: []
