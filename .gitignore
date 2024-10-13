@@ -3,7 +3,13 @@ app/backend/__pycache__
 app/instance/ecommerce.db
 .venv
 .env
-infrastructure/.terraform
-infrastructure/.terraform.lock.hcl
-infrastructure/terraform.tfstate
-infrastructure/terraform.tfstate.backup
+infrastructure/step1/.terraform
+infrastructure/step1/.terraform.lock.hcl
+infrastructure/step1/terraform.tfstate
+infrastructure/step1/terraform.tfstate.backup
+infrastructure/step2/.terraform
+infrastructure/step2/.terraform.lock.hcl
+infrastructure/step2/terraform.tfstate
+infrastructure/step2/terraform.tfstate.backup
+*.png
+*.docx
