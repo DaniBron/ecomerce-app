@@ -34,7 +34,7 @@ resource "aws_elasticsearch_domain" "ecommerce_search" {
   }
 
   domain_endpoint_options {
-    enforce_https = true 
+    enforce_https = true  
   }
 
   access_policies = <<POLICIES
@@ -44,7 +44,7 @@ resource "aws_elasticsearch_domain" "ecommerce_search" {
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::049088564626:user/Qntr-main"
+        "AWS": "*"
       },
       "Action": "es:*",
       "Resource": "arn:aws:es:us-east-1:049088564626:domain/ecommerce-search/*"
@@ -52,10 +52,15 @@ resource "aws_elasticsearch_domain" "ecommerce_search" {
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::049088564626:user/admin"
+        "AWS": "*"
       },
       "Action": "es:*",
-      "Resource": "arn:aws:es:us-east-1:049088564626:domain/ecommerce-search/*"
+      "Resource": "arn:aws:es:us-east-1:049088564626:domain/ecommerce-search/*",
+      "Condition": {
+        "StringEquals": {
+          "es:username": "admin"
+        }
+      }
     }
   ]
 }
