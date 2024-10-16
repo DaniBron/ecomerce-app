@@ -1,11 +1,30 @@
-<h2>Search Results for "{{ query }}"</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <!-- Link Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Search Results for "{{ query }}"</h2>
 
-{% if products %}
-    <ul>
-        {% for product in products %}
-            <li>{{ product.name }} - {{ product.description }} - ${{ product.price }} - {{ product.stock }} in stock</li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No products found matching your search.</p>
-{% endif %}
+        {% if products %}
+            <ul class="list-group">
+                {% for product in products %}
+                    <li class="list-group-item">
+                        <strong>{{ product.name }}</strong> - {{ product.description }} - ${{ product.price }} - {{ product.stock }} in stock
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-center text-muted">No products found matching your search.</p>
+        {% endif %}
+    </div>
+    <!-- Link Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

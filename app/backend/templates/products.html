@@ -1,22 +1,39 @@
-<form method="GET" action="{{ url_for('main.search') }}">
-    <input type="text" name="q" placeholder="Search products">
-    <button type="submit">Search</button>
-</form>
-
-
-<h2>Product Catalog</h2>
-<ul>
-    {% for product in products %}
-        <li>
-            {{ product.name }} - ${{ product.price }} - {{ product.stock }} in stock
-            <form method="POST" action="{{ url_for('main.place_order') }}">
-                <input type="hidden" name="product_id" value="{{ product.id }}">
-                <label for="quantity">Quantity:</label>
-                <input type="number" name="quantity" min="1" max="{{ product.stock }}">
-                <button type="submit">Order</button>
-            </form>
-        </li>
-    {% endfor %}
-</ul>
-
-<a href="{{ url_for('main.new_product_form') }}">Add New Product</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Catalog</title>
+    <!-- Link Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Product Catalog</h2>
+        
+        <form method="GET" action="{{ url_for('main.search') }}" class="form-inline mb-3">
+            <input type="text" name="q" class="form-control mr-2" placeholder="Search products">
+            <button type="submit" class="btn btn-outline-primary">Search</button>
+        </form>
+        
+        <ul class="list-group">
+            {% for product in products %}
+                <li class="list-group-item">
+                    <strong>{{ product.name }}</strong> - ${{ product.price }} - {{ product.stock }} in stock
+                    <form method="POST" action="{{ url_for('main.place_order') }}" class="form-inline">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <label for="quantity" class="mr-2">Quantity:</label>
+                        <input type="number" name="quantity" min="1" max="{{ product.stock }}" class="form-control mr-2">
+                        <button type="submit" class="btn btn-primary">Order</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+        
+        <a href="{{ url_for('main.new_product_form') }}" class="btn btn-success mt-3">Add New Product</a>
+    </div>
+    <!-- Link Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
